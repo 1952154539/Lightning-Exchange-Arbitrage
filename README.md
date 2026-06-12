@@ -161,12 +161,35 @@ npm run deploy
 npm run arbitrage
 ```
 
-脚本会：
-1. 加载已部署的合约地址
-2. 分析最优借款金额
-3. 执行闪电兑换套利
-4. 输出套利结果日志（包括 `ArbitrageExecuted` 事件）
-5. 提取利润到所有者钱包
+### Sepolia 测试网部署地址
+
+| 合约 | 地址 |
+|------|------|
+| TokenA (TKA) | `0x56B29cebde53A3F20a337663CC954Ef2D16498EB` |
+| TokenB (TKB) | `0xc18E9BE3DBA95923C0654e8d6637590B3b669fb2` |
+| PoolA (1 TKA = 1 TKB) | `0xf5a106EF1AdEF0378358b3DCbe9E54b38AE179b6` |
+| PoolB (1 TKA = 2 TKB) | `0x370FbF65D18b046A3968AD6C2dd32BcFd8bf2820` |
+| Arbitrage | `0xC2036B0e2ab034984F4872aae00d07ef5Eab0020` |
+
+### 实际套利执行结果
+
+[Sepolia 交易: `0xc1ba48fa48d94928a8d95e813007bbe5f760b72e88ef7a8fe1f3bfaee76955bd`](https://sepolia.etherscan.io/tx/0xc1ba48fa48d94928a8d95e813007bbe5f760b72e88ef7a8fe1f3bfaee76955bd)
+
+| 步骤 | 操作 | 数量 |
+|------|------|------|
+| 1 | 从 PoolA 闪电兑换借出 | 10 TKA |
+| 2 | 在 PoolB 卖出 TokenA | 获得 19.74 TKB |
+| 3 | 偿还 PoolA（含 0.3% 费） | 10.13 TKB |
+| 4 | 利润 | **9.61 TKB** |
+
+池子状态变化：
+```
+PoolA: 1000 TKA → 990 TKA  │  1000 TKB → 1010.13 TKB
+PoolB: 1000 TKA → 1010 TKA  │  2000 TKB → 1980.26 TKB
+```
+
+- Gas 消耗: 247,496
+- PoolA K 值增长（手续费收入），证明恒定乘积不变式正确维护
 
 ## 核心合约说明
 
